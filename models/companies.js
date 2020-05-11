@@ -1,5 +1,7 @@
 const db = require('../db');
 
+const ExpressError = require("../helpers/expressError");
+
 class Company {
     constructor({handle, name , num_employees, description, logo_url}) {
         this.handle = handle;
@@ -9,10 +11,48 @@ class Company {
         this.logo_url = logo_url;
     }
 
+    static async getAll() {
+        const results = await db.query(
+            `SELECT handle, name
+              FROM companies`
+          );      
+          
+          return results.rows;
+    }
+
+    static async filter(query) {
+        const baseQuery = 'SELECT handle, name FROM companies';
+        const whereClauses = [];
+        const values = [];
+
+        if (query.search) {
+            whereClauses.push(`name ILIKE '%'|| $${values.length + 1} ||'%'`);
+            values.push(query.search);
+        }
+
+        if (query.min_employees > query.max_employees) {
+            throw new ExpressError("Min employees can't be more than max employees", 400)
+        }
+
+        if (query.min_employees) {
+            whereClauses.push(`num_employees > $${values.length + 1}`);
+            values.push(query.min_employees);
+        }
+
+        if (query.max_employees) {
+            whereClauses.push(`num_employees < $${values.length + 1}`);  
+            values.push(query.max_employees);   
+        }
+       
+        const results = await db.query(`${baseQuery} WHERE ${whereClauses.join(" AND ")}`, [...values])
+      
+        return results.rows
+    }
+
     static create(companyObj){
         const company = new Company(companyObj);
        
-        return company
+        return company;
     }
 
     static async get(handle) {
@@ -24,9 +64,9 @@ class Company {
         );      
         const company = results.rows[0];     
         if (company === undefined) {
-          throw new ExpressError(`No such company: ${company}`, 400);
-          
-        }        
+          throw new ExpressError(`No such company: ${handle}`, 400);
+        }
+                
         return new Company(company);
     }
 
