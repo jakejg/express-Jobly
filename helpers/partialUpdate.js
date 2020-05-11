@@ -12,7 +12,7 @@
  *
  */
 
-function sqlForPartialUpdate(table, items, key, id) {
+function sqlForPartialUpdate(table, items, key, pKey) {
   // keep track of item indexes
   // store all the columns we want to update and associate with vals
 
@@ -36,7 +36,7 @@ function sqlForPartialUpdate(table, items, key, id) {
   let query = `UPDATE ${table} SET ${cols} WHERE ${key}=$${idx} RETURNING *`;
 
   let values = Object.values(items);
-  values.push(id);
+  values.push(pKey);
 
   return { query, values };
 }

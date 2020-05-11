@@ -78,28 +78,22 @@ class Company {
         return new Company(company);
     }
 
+    async delete() {
+        await db.query(`DELETE FROM companies WHERE handle=$1`,
+        [this.handle])
+    }
+
 
     // Insert or updated company objects in the database
 
     async save(){
         
         try{
-            if (!this.existsInDb){
             
-                const results = await db.query(`INSERT INTO companies 
-                (handle, name, num_employees, description, logo_url)
-                VALUES ($1, $2, $3, $4, $5)`,
-                [this.handle, this.name, this.num_employees, this.description, this.logo_url])
-                
-                this.existsInDb = true;
-            }
-            else {
-                await db.query(`UPDATE companies SET
-                (name, num_employees, description, log_url)
-                VALUES=$2, $3, $4, $5
-                WHERE handle=$1`,
-                [this.handle, this.name, this.num_employees, this.description, this.logo_url])
-            }
+            await db.query(`INSERT INTO companies 
+            (handle, name, num_employees, description, logo_url)
+            VALUES ($1, $2, $3, $4, $5)`,
+            [this.handle, this.name, this.num_employees, this.description, this.logo_url])
         }
         catch(e) {
             console.log(e)
