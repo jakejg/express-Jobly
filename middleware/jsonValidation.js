@@ -1,6 +1,7 @@
 const jsonschema = require('jsonschema');
 const createCompanySchema = require('../schemas/createCompanySchema.json');
 const updateCompanySchema = require('../schemas/updateCompanySchema.json');
+const createJobSchema = require('../schemas/createJobSchema.json');
 const ExpressError = require('../helpers/expressError')
 
 function validate(body, next, schema) {
@@ -17,15 +18,21 @@ function validate(body, next, schema) {
 
 function validateCreateCompanyJson(req, res, next){
     
-    validate(req.body, next, createCompanySchema)
+    validate(req.body, next, createCompanySchema);
 }
 
 function validateUpdateCompanyJson(req, res, next){
-    console.log(updateCompanySchema)
-    validate(req.body, next, updateCompanySchema)
+    
+    validate(req.body, next, updateCompanySchema);
+}
+
+function validateCreateJobJson(req, res, next){
+    
+    validate(req.body, next, createJobSchema);
 }
 
 module.exports = {
     validateUpdateCompanyJson,
-    validateCreateCompanyJson
+    validateCreateCompanyJson,
+    validateCreateJobJson
 }

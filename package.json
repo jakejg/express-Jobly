@@ -15,5 +15,8 @@
     "jsonschema": "^1.2.6",
     "morgan": "^1.10.0",
     "pg": "^8.1.0"
+  },
+  "devDependencies": {
+    "supertest": "^4.0.2"
   }
 }
