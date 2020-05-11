@@ -1,8 +1,10 @@
 const Company = require('../models/companies');
 const express = require('express');
 const router = new express.Router();
-const sqlForPartialUpdate = require('../helpers/partialUpdate')
-const db = require('../db')
+const sqlForPartialUpdate = require('../helpers/partialUpdate');
+const db = require('../db');
+const { validateCreateCompanyJson, validateUpdateCompanyJson } = require('../middleware/jsonValidation');;
+
 
 // Route to get all companies
 router.get('/', async (req, res, next) => {
@@ -37,8 +39,9 @@ router.get('/:handle', async (req, res, next) => {
 
 // Route to create a new company
 
-router.post('/', async (req, res, next) => {
+router.post('/', validateCreateCompanyJson, async (req, res, next) => {
     try{
+        
         const company = Company.create(req.body);
         await company.save();
         return res.status(201).json({company});
@@ -48,12 +51,12 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-//Route to update a company
+//Route to update a company, will just return the company if no data is passed in body
 
-router.patch('/:handle', async (req, res, next) => {
+router.patch('/:handle', validateUpdateCompanyJson, async (req, res, next) => {
     try{
         const company = await Company.get(req.params.handle);
-
+ 
         const items = {
             name: req.body.name || company.name,
             num_employees: req.body.num_employees || company.num_employees,

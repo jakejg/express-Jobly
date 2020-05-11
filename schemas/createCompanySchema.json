@@ -1,0 +1,77 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "title": "The root schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "default": {},
+    "examples": [
+        {
+            "logo_url": "https://cdn11.bigcommerce.com/s-sq9zkarfah/images/stencil/608x608/products/112127/200296/Black-Diamond-Skis-Logo-2-Sticker__39100.1511161995.jpg?c=2",
+            "handle": "BD",
+            "description": "Outdoor Equipment",
+            "name": "Black Diamond",
+            "num_employees": 300.0
+        }
+    ],
+    "required": [
+        "handle",
+        "name",
+        "num_employees",
+        "description",
+        "logo_url"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "handle": {
+            "$id": "#/properties/handle",
+            "type": "string",
+            "title": "The handle schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "BD"
+            ]
+        },
+        "name": {
+            "$id": "#/properties/name",
+            "type": "string",
+            "title": "The name schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "Black Diamond"
+            ]
+        },
+        "num_employees": {
+            "$id": "#/properties/num_employees",
+            "type": "integer",
+            "title": "The num_employees schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": 0.0,
+            "examples": [
+                300.0
+            ]
+        },
+        "description": {
+            "$id": "#/properties/description",
+            "type": "string",
+            "title": "The description schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "Outdoor Equipment"
+            ]
+        },
+        "logo_url": {
+            "$id": "#/properties/logo_url",
+            "type": "string",
+            "title": "The logo_url schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "https://cdn11.bigcommerce.com/s-sq9zkarfah/images/stencil/608x608/products/112127/200296/Black-Diamond-Skis-Logo-2-Sticker__39100.1511161995.jpg?c=2"
+            ]
+        }
+    }
+}
