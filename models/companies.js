@@ -11,6 +11,8 @@ class Company {
         this.logo_url = logo_url;
     }
 
+    //get all companies
+
     static async getAll() {
         const results = await db.query(
             `SELECT handle, name
@@ -19,6 +21,8 @@ class Company {
           
           return results.rows;
     }
+
+    // filter companies by name, max_employees or min_employees
 
     static async filter(query) {
         const baseQuery = 'SELECT handle, name FROM companies';
@@ -49,11 +53,15 @@ class Company {
         return results.rows
     }
 
+    //create a new company object
+
     static create(companyObj){
         const company = new Company(companyObj);
        
         return company;
     }
+
+    // retrieve a company by handl
 
     static async get(handle) {
         const results = await db.query(
@@ -69,6 +77,9 @@ class Company {
                 
         return new Company(company);
     }
+
+
+    // Insert or updated company objects in the database
 
     async save(){
         
