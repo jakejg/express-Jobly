@@ -7,19 +7,20 @@ const db = require('../db');
 const { validateCreateJobJson, validateUpdateCompanyJson } = require('../middleware/jsonValidation');
 
 
-// Route to get all companies
+// Route to get all jobs
 router.get('/', async (req, res, next) => {
     try{
-        let companies;
+        let jobs;
 
         if (Object.keys(req.query).length !== 0){
-            companies = await Company.filter(req.query);
+            
+            jobs = await Job.filter(req.query);
         }
         else{
-            companies = await Company.getAll();
+            jobs = await Job.getAll();
         }
       
-        return res.json({companies});
+        return res.json({jobs});
     }
     catch(e){
         next(e)

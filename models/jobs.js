@@ -14,8 +14,9 @@ class Job {
 
     static async getAll() {
         const results = await db.query(
-            `SELECT handle, name
-              FROM companies`
+            `SELECT title, company_handle
+              FROM jobs
+              ORDER BY date_posted`
           );      
           
           return results.rows;
@@ -24,27 +25,23 @@ class Job {
     // filter companies by name, max_employees or min_employees
 
     static async filter(query) {
-        const baseQuery = 'SELECT handle, name FROM companies';
+        const baseQuery = 'SELECT title, company_handle FROM jobs';
         const whereClauses = [];
         const values = [];
 
         if (query.search) {
-            whereClauses.push(`name ILIKE '%'|| $${values.length + 1} ||'%'`);
+            whereClauses.push(`title ILIKE '%'|| $${values.length + 1} ||'%'`);
             values.push(query.search);
         }
 
-        if (query.min_employees > query.max_employees) {
-            throw new ExpressError("Min employees can't be more than max employees", 400)
+        if (query.min_salary) {
+            whereClauses.push(`salary > $${values.length + 1}`);
+            values.push(query.min_salary);
         }
 
-        if (query.min_employees) {
-            whereClauses.push(`num_employees > $${values.length + 1}`);
-            values.push(query.min_employees);
-        }
-
-        if (query.max_employees) {
-            whereClauses.push(`num_employees < $${values.length + 1}`);  
-            values.push(query.max_employees);   
+        if (query.min_equity) {
+            whereClauses.push(`equity > $${values.length + 1}`);  
+            values.push(query.min_equity);   
         }
        
         const results = await db.query(`${baseQuery} WHERE ${whereClauses.join(" AND ")}`, [...values])
@@ -101,6 +98,9 @@ class Job {
             console.log(e)
             if (e.code === '23514'){
                throw new ExpressError("Equity must be less than 1", 400)
+            }
+            if (e.code === '23503'){
+               throw new ExpressError(`Company handle ${this.company_handle} does not exist`, 400)
             }
         }
     }
