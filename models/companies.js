@@ -3,12 +3,13 @@ const db = require('../db');
 const ExpressError = require("../helpers/expressError");
 
 class Company {
-    constructor({handle, name , num_employees, description, logo_url}) {
+    constructor({handle, name , num_employees, description, logo_url, jobs}) {
         this.handle = handle;
         this.name = name;
         this.num_employees = num_employees;
         this.description = description;
         this.logo_url = logo_url;
+        this.jobs = jobs;
     }
 
     //get all companies
@@ -61,7 +62,7 @@ class Company {
         return company;
     }
 
-    // retrieve a company by handl
+    // retrieve a company by handle
 
     static async get(handle) {
         const results = await db.query(
@@ -70,11 +71,21 @@ class Company {
             WHERE handle = $1`,
           [handle]
         );      
-        const company = results.rows[0];     
+
+        const company = results.rows[0]; 
+
         if (company === undefined) {
           throw new ExpressError(`No such company: ${handle}`, 400);
         }
-                
+        const jobResults = await db.query(
+            `SELECT id, title, salary, equity
+              FROM jobs
+              WHERE company_handle = $1`,
+            [handle]
+          );
+          
+        company.jobs = jobResults.rows
+      
         return new Company(company);
     }
 

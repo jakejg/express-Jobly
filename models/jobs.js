@@ -3,7 +3,8 @@ const db = require('../db');
 const ExpressError = require("../helpers/expressError");
 
 class Job {
-    constructor({title , salary, equity, company_handle}) {
+    constructor({id, title , salary, equity, company_handle}) {
+        this.id = id;
         this.title = title;
         this.salary = salary;
         this.equity = equity;
@@ -56,26 +57,42 @@ class Job {
         return new Job(jobObj);
     }
 
-    // retrieve a
+    // retrieve a job
 
-    static async get(handle) {
+    static async get(id) {
         const results = await db.query(
-          `SELECT handle, name, num_employees, description, logo_url
-            FROM companies 
-            WHERE handle = $1`,
-          [handle]
+          `SELECT id, title, salary, equity, company_handle
+            FROM jobs
+            WHERE id = $1`,
+          [id]
         );      
-        const company = results.rows[0];     
-        if (company === undefined) {
-          throw new ExpressError(`No such company: ${handle}`, 400);
+        const job = results.rows[0];
+        
+        if (job === undefined) {
+          throw new ExpressError(`No such job: ${job}`, 400);
         }
-                
-        return new Company(company);
+     
+        const compResults = await db.query(
+            `SELECT handle, name, num_employees, description, logo_url
+              FROM companies 
+              WHERE handle = $1`,
+            [job.company_handle]
+          );
+          job.company_handle = compResults.rows[0];   
+        
+        return new Job(job);
     }
 
+    // delete a job 
+
     async delete() {
-        await db.query(`DELETE FROM companies WHERE handle=$1`,
-        [this.id])
+        try{
+            await db.query(`DELETE FROM jobs WHERE id=$1`,
+            [this.id])
+        }
+        catch(e){
+            console.log(e)
+        }
     }
 
 

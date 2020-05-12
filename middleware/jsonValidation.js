@@ -2,7 +2,9 @@ const jsonschema = require('jsonschema');
 const createCompanySchema = require('../schemas/createCompanySchema.json');
 const updateCompanySchema = require('../schemas/updateCompanySchema.json');
 const createJobSchema = require('../schemas/createJobSchema.json');
-const ExpressError = require('../helpers/expressError')
+const updateJobSchema = require('../schemas/updateJobSchema.json');
+const ExpressError = require('../helpers/expressError');
+
 
 function validate(body, next, schema) {
     const result = jsonschema.validate(body, schema)
@@ -31,8 +33,14 @@ function validateCreateJobJson(req, res, next){
     validate(req.body, next, createJobSchema);
 }
 
+function validateUpdateJobJson(req, res, next){
+    
+    validate(req.body, next, updateJobSchema);
+}
+
 module.exports = {
     validateUpdateCompanyJson,
     validateCreateCompanyJson,
-    validateCreateJobJson
+    validateCreateJobJson,
+    validateUpdateJobJson
 }

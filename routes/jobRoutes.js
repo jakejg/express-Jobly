@@ -2,9 +2,10 @@ const Company = require('../models/companies');
 const Job = require('../models/jobs')
 const express = require('express');
 const router = new express.Router();
+const ExpressError = require("../helpers/expressError");
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
 const db = require('../db');
-const { validateCreateJobJson, validateUpdateCompanyJson } = require('../middleware/jsonValidation');
+const { validateCreateJobJson, validateUpdateJobJson } = require('../middleware/jsonValidation');
 
 
 // Route to get all jobs
@@ -27,12 +28,12 @@ router.get('/', async (req, res, next) => {
     }
 })
 
-// Route to get a company by handle
-router.get('/:handle', async (req, res, next) => {
+// Route to get a job by id
+router.get('/:id', async (req, res, next) => {
     try{
-        const company = await Company.get(req.params.handle);
+        const job = await Job.get(req.params.id);
         
-        return res.json({company});
+        return res.json({job});
     }
     catch(e){
         next(e);
@@ -54,37 +55,44 @@ router.post('/', validateCreateJobJson,  async (req, res, next) => {
     }
 });
 
-//Route to update a company, will just return the company if no data is passed in body
+//Route to update a job, will just return the company if no data is passed in body
 
-router.patch('/:handle', validateUpdateCompanyJson, async (req, res, next) => {
+router.patch('/:id', validateUpdateJobJson, async (req, res, next) => {
     try{
-        const company = await Company.get(req.params.handle);
+        const job = await Job.get(req.params.id);
  
         const items = {
-            name: req.body.name || company.name,
-            num_employees: req.body.num_employees || company.num_employees,
-            description: req.body.description || company.description,
-            logo_url: req.body.logo_url || company.logo_url
+            title: req.body.title || job.title,
+            salary: req.body.salary || job.salary,
+            equity: req.body.equity || job.equity,
+            company_handle: req.body.company_handle || job.company_handle
         }
-        const queryObject = sqlForPartialUpdate('companies', items, "handle", req.params.handle)
-       
+        const queryObject = sqlForPartialUpdate('jobs', items, "id", req.params.id)
+        
         const results = await db.query(queryObject.query, queryObject.values)
         
-        return res.json({company: results.rows[0]});
+        return res.json({job: results.rows[0]});
     }
     catch(e){
-        next(e);
+        if (e.code === '23514'){
+            next( new ExpressError("Equity must be less than 1", 400))
+            }
+        if (e.code === '23503'){
+           next( new ExpressError(`Company handle does not exist`, 400))
+        }
+        next(e)
     }
 });
 
-// Route to delete a company
+// Route to delete a job
 
-router.delete('/:handle', async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     try{
-        const company = await Company.get(req.params.handle);
-        await company.delete()
+        const job = await Job.get(req.params.id);
+        console.log(job)
+        await job.delete()
         
-        return res.json({message: "Company deleted"});
+        return res.json({message: "job deleted"});
     }
     catch(e){
         next(e);
