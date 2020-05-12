@@ -89,10 +89,10 @@ router.patch('/:id', validateUpdateJobJson, async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
     try{
         const job = await Job.get(req.params.id);
-        console.log(job)
+       
         await job.delete()
         
-        return res.json({message: "job deleted"});
+        return res.json({message: "Job deleted"});
     }
     catch(e){
         next(e);
