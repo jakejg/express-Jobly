@@ -1,8 +1,6 @@
 const Company = require('../models/companies');
 const express = require('express');
 const router = new express.Router();
-const sqlForPartialUpdate = require('../helpers/partialUpdate');
-const db = require('../db');
 const { validateCreateCompanyJson, validateUpdateCompanyJson } = require('../middleware/jsonValidation');;
 const ExpressError = require("../helpers/expressError");
 const { checkAdminStatus } = require('../middleware/auth');

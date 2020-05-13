@@ -3,7 +3,6 @@ const User = require('../models/users')
 const express = require('express');
 const router = new express.Router();
 const ExpressError = require("../helpers/expressError");
-const db = require('../db');
 const { validateCreateUserJson, validateUpdateUserJson } = require('../middleware/jsonValidation');
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../config');
