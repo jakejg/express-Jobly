@@ -5,6 +5,7 @@ const sqlForPartialUpdate = require('../helpers/partialUpdate');
 const db = require('../db');
 const { validateCreateCompanyJson, validateUpdateCompanyJson } = require('../middleware/jsonValidation');;
 const ExpressError = require("../helpers/expressError");
+const { checkAdminStatus } = require('../middleware/auth');
 
 // Route to get all companies
 router.get('/', async (req, res, next) => {
@@ -42,7 +43,7 @@ router.get('/:handle', async (req, res, next) => {
 
 // Route to create a new company
 
-router.post('/', validateCreateCompanyJson, async (req, res, next) => {
+router.post('/', validateCreateCompanyJson, checkAdminStatus, async (req, res, next) => {
     try{
         
         const company = Company.create(req.body);
@@ -56,7 +57,7 @@ router.post('/', validateCreateCompanyJson, async (req, res, next) => {
 
 //Route to update a company, will just return the company if no data is passed in body
 
-router.patch('/:handle', validateUpdateCompanyJson, async (req, res, next) => {
+router.patch('/:handle', validateUpdateCompanyJson, checkAdminStatus, async (req, res, next) => {
     try{
         const company = await Company.get(req.params.handle);
  
@@ -79,7 +80,7 @@ router.patch('/:handle', validateUpdateCompanyJson, async (req, res, next) => {
 
 // Route to delete a company
 
-router.delete('/:handle', async (req, res, next) => {
+router.delete('/:handle', checkAdminStatus, async (req, res, next) => {
     try{
         const company = await Company.get(req.params.handle);
         await company.delete()

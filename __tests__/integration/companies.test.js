@@ -3,7 +3,9 @@ const app = require('../../app');
 const Company = require('../../models/companies');
 const db = require('../../db')
 
-process.env.NODE_ENV = "test"
+process.env.NODE_ENV = "test";
+
+const adminToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Impha2V0ZXN0OSIsImlzX2FkbWluIjp0cnVlLCJpYXQiOjE1ODkzOTAzMzZ9.-iKCbe2d8Ogr-NyKYdQVFdjprmSffgF0h3ZKqoq7MBM";
 
 describe("Company Routes Tests", ()=>{
     beforeEach(async () => {
@@ -14,14 +16,16 @@ describe("Company Routes Tests", ()=>{
             name: "testComp",
             num_employees: 10,
             description: "testing",
-            logo_url: "http://test.com"
+            logo_url: "http://test.com",
+            _token: adminToken
         });
         const comp2 = Company.create({
             handle: 'tst2',
             name: "testComp2",
             num_employees: 50,
             description: "testing",
-            logo_url: "http://test.com"
+            logo_url: "http://test.com",
+            _token: adminToken
         });
 
         await comp1.save()
@@ -29,19 +33,25 @@ describe("Company Routes Tests", ()=>{
     });
 
     test('get all companies', async() => {
-        let res = await request(app).get("/companies");
+        let res = await request(app).get("/companies").send({
+            _token: adminToken
+        });
         expect(res.status).toEqual(200);
         expect(res.body.companies.length).toEqual(2);
     });
 
     test('get all companies with 2 in the name', async() => {
-        let res = await request(app).get("/companies?search=2");
+        let res = await request(app).get("/companies?search=2").send({
+            _token: adminToken
+        });
         expect(res.status).toEqual(200);
         expect(res.body.companies[0].handle).toEqual("tst2");
     });
 
     test('get all companies with more less than 40 employees', async() => {
-        let res = await request(app).get("/companies?max_employees=40");
+        let res = await request(app).get("/companies?max_employees=40").send({
+            _token: adminToken
+        });
         expect(res.status).toEqual(200);
         expect(res.body.companies[0].handle).toEqual("tst");
     });
@@ -52,8 +62,9 @@ describe("Company Routes Tests", ()=>{
             name: "testComp3",
             num_employees: 100,
             description: "testing",
-            logo_url: "http://test.com"
-        })
+            logo_url: "http://test.com",
+            _token: adminToken
+        });
         expect(res.status).toEqual(201);
         expect(res.body.company.handle).toEqual('tst3');
     })
@@ -71,25 +82,34 @@ describe("Company Routes Tests", ()=>{
     })
 
     test('get a company by handle', async() => {
-        let res = await request(app).get('/companies/tst');
+        let res = await request(app).get('/companies/tst').send({
+            _token: adminToken
+        });
         expect(res.status).toEqual(200);
         expect(res.body.company.name).toEqual('testComp');
     });
 
     test('get a company by handle that does not exist', async() => {
-        let res = await request(app).get('/companies/fake');
+        let res = await request(app).get('/companies/fake').send({
+            _token: adminToken
+        });
         expect(res.status).toEqual(400);
         expect(res.body.message).toEqual('No such company: fake');
     });
 
     test('update a company', async() => {
-        let res = await request(app).patch('/companies/tst').send({name: "newTestComp"});
+        let res = await request(app).patch('/companies/tst').send({
+            name: "newTestComp",
+            _token: adminToken
+        });
         expect(res.status).toEqual(200);
         expect(res.body.company.name).toEqual('newTestComp');
     });
 
     test('delete a company', async() => {
-        let res = await request(app).delete('/companies/tst');
+        let res = await request(app).delete('/companies/tst').send({
+            _token: adminToken
+        });
         expect(res.status).toEqual(200);
         expect(res.body.message).toEqual("Company deleted");
     });

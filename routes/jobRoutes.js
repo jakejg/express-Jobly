@@ -6,7 +6,7 @@ const ExpressError = require("../helpers/expressError");
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
 const db = require('../db');
 const { validateCreateJobJson, validateUpdateJobJson } = require('../middleware/jsonValidation');
-
+const { checkAdminStatus } = require('../middleware/auth');
 
 // Route to get all jobs
 router.get('/', async (req, res, next) => {
@@ -44,13 +44,11 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // Route to create a new job with this JSON
-// handle: 'tst2',
-// name: "testComp2",
-// num_employees: 50,
-// description: "testing",
-// logo_url: "http://test.com"
-
-router.post('/', validateCreateJobJson,  async (req, res, next) => {
+// title: "Job Tester",
+// salary: "100",
+// equity: ".2",
+// company_handle: "tst"
+router.post('/', validateCreateJobJson, checkAdminStatus, async (req, res, next) => {
     try{
         
         const job = Job.create(req.body);
@@ -65,7 +63,7 @@ router.post('/', validateCreateJobJson,  async (req, res, next) => {
 
 //Route to update a job, will just return the company if no data is passed in body
 
-router.patch('/:id', validateUpdateJobJson, async (req, res, next) => {
+router.patch('/:id', validateUpdateJobJson, checkAdminStatus, async (req, res, next) => {
     try{
         const job = await Job.get(req.params.id);
  
@@ -94,7 +92,7 @@ router.patch('/:id', validateUpdateJobJson, async (req, res, next) => {
 
 // Route to delete a job
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', checkAdminStatus, async (req, res, next) => {
     try{
         const job = await Job.get(req.params.id);
        
