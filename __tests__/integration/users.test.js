@@ -63,7 +63,6 @@ describe("User Routes Tests", ()=>{
             first_name: "new",
             last_name: "test",
             email: "t@test3.com"
-            
         })
         expect(res.status).toEqual(400);
         expect(res.body.message).toEqual(["instance requires property \"username\""]);
