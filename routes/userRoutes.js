@@ -3,7 +3,6 @@ const User = require('../models/users')
 const express = require('express');
 const router = new express.Router();
 const ExpressError = require("../helpers/expressError");
-const sqlForPartialUpdate = require('../helpers/partialUpdate');
 const db = require('../db');
 const { validateCreateUserJson, validateUpdateUserJson } = require('../middleware/jsonValidation');
 const jwt = require('jsonwebtoken');
@@ -69,23 +68,16 @@ router.post('/', validateCreateUserJson, async (req, res, next) => {
 
 router.patch('/:username', validateUpdateUserJson, checkUsername, async (req, res, next) => {
     try{
-        // console.log(req.user)
+       
         const user = await User.get(req.params.username);
+
+        const { password, first_name, last_name, email, photo_url, is_admin } = req.body
+
+        await user.update(password, first_name, last_name, email, photo_url, is_admin)
+        delete user.jobs
+
  
-        const items = {
-            password: req.body.password || user.password,
-            first_name: req.body.first_name || user.first_name,
-            last_name: req.body.last_name || user.last_name,
-            email: req.body.email || user.email,
-            photo_url: req.body.photo_url || user.photo_url,
-            is_admin: req.body.is_admin || user.is_admin,
-            
-        }
-        const queryObject = sqlForPartialUpdate('users', items, "username", req.params.username)
-        
-        const results = await db.query(queryObject.query, queryObject.values)
-        
-        return res.json({user: results.rows[0]});
+        return res.json({user});
     }
     catch(e){
         

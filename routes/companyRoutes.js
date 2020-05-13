@@ -60,18 +60,12 @@ router.post('/', validateCreateCompanyJson, checkAdminStatus, async (req, res, n
 router.patch('/:handle', validateUpdateCompanyJson, checkAdminStatus, async (req, res, next) => {
     try{
         const company = await Company.get(req.params.handle);
- 
-        const items = {
-            name: req.body.name || company.name,
-            num_employees: req.body.num_employees || company.num_employees,
-            description: req.body.description || company.description,
-            logo_url: req.body.logo_url || company.logo_url
-        }
-        const queryObject = sqlForPartialUpdate('companies', items, "handle", req.params.handle)
-       
-        const results = await db.query(queryObject.query, queryObject.values)
         
-        return res.json({company: results.rows[0]});
+        const { name, num_employees, description, logo_url } = req.body;
+ 
+       await company.update(name, num_employees, description, logo_url)
+        
+        return res.json({company});
     }
     catch(e){
         next(e);

@@ -65,19 +65,15 @@ router.post('/', validateCreateJobJson, checkAdminStatus, async (req, res, next)
 
 router.patch('/:id', validateUpdateJobJson, checkAdminStatus, async (req, res, next) => {
     try{
+        
         const job = await Job.get(req.params.id);
- 
-        const items = {
-            title: req.body.title || job.title,
-            salary: req.body.salary || job.salary,
-            equity: req.body.equity || job.equity,
-            company_handle: req.body.company_handle || job.company_handle
-        }
-        const queryObject = sqlForPartialUpdate('jobs', items, "id", req.params.id)
-        
-        const results = await db.query(queryObject.query, queryObject.values)
-        
-        return res.json({job: results.rows[0]});
+
+        const { title, salary, equity, company_handle } = req.body;
+
+        await job.update(title, salary, equity, company_handle);
+       
+        return res.json({job});
+
     }
     catch(e){
         if (e.code === '23514'){

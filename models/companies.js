@@ -1,6 +1,7 @@
 const db = require('../db');
 
 const ExpressError = require("../helpers/expressError");
+const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
     constructor({handle, name , num_employees, description, logo_url, jobs}) {
@@ -92,6 +93,24 @@ class Company {
     async delete() {
         await db.query(`DELETE FROM companies WHERE handle=$1`,
         [this.handle])
+    }
+
+    async update(name, num_employees, description, logo_url) {
+ 
+        const items = {
+            name: name || this.name,
+            num_employees:num_employees || this.num_employees,
+            description:description || this.description,
+            logo_url: logo_url || this.logo_url
+        }
+        const queryObject = sqlForPartialUpdate('companies', items, "handle", this.handle)
+       
+        const results = await db.query(queryObject.query, queryObject.values)
+
+        this.name = results.rows[0].name;
+        this.num_employees = results.rows[0].num_employees;
+        this.description = results.rows[0].description;
+        this.logo_url =  results.rows[0].logo_url;
     }
 
 

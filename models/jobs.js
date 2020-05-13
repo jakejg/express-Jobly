@@ -1,5 +1,5 @@
 const db = require('../db');
-
+const sqlForPartialUpdate = require('../helpers/partialUpdate');
 const ExpressError = require("../helpers/expressError");
 
 class Job {
@@ -115,6 +115,23 @@ class Job {
         catch(e){
             console.log(e)
         }
+    }
+
+    async update(title, salary, equity, company_handle) {
+        const items = {
+            title: title || this.title,
+            salary: salary || thidate_posted,
+            equity: equity || this.equity,
+            company_handle: company_handle || this.company_handle,    
+        }
+        const queryObject = sqlForPartialUpdate('jobs', items, "id", this.id)
+        
+        const results = await db.query(queryObject.query, queryObject.values)
+
+        this.title = results.rows[0].title;
+        this.salary = results.rows[0].salary;
+        this.equity = results.rows[0].equity;
+        this.company_handle = results.rows[0].company_handle;
     }
 
 

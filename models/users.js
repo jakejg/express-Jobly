@@ -1,6 +1,7 @@
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const { BCRYPT_WORK_FACTOR } = require('../config');
+const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 const ExpressError = require("../helpers/expressError");
 
@@ -68,7 +69,8 @@ class User {
               WHERE username = $1`,
             [username]
           );
-          user.jobs=jobResults.rows   
+
+          user.jobs=jobResults.rows;
         
         return new User(user);
     }
@@ -80,6 +82,29 @@ class User {
         await db.query(`DELETE FROM users WHERE username=$1`,
         [this.username])
       
+    }
+
+    async update(password, first_name, last_name, email, photo_url, is_admin) {
+        const items = {
+            password: password || this.password,
+            first_name: first_name || this.first_name,
+            last_name: last_name || this.last_name,
+            email: email || this.email,
+            photo_url: photo_url || this.photo_url,
+            is_admin: is_admin || this.is_admin,
+            
+        }
+        const queryObject = sqlForPartialUpdate('users', items, "username", this.username)
+        
+        const results = await db.query(queryObject.query, queryObject.values)
+
+        this.password = results.rows[0].password;
+        this.first_name = results.rows[0].first_name;
+        this.last_name = results.rows[0].last_name;
+        this.email = results.rows[0].email;
+        this.photo_url = results.rows[0].photo_url;
+        this.is_admin = results.rows[0].is_admin;
+
     }
 
 
