@@ -21,15 +21,26 @@
   
 -- );
 
-DROP TABLE IF EXISTS users;
+-- DROP TABLE IF EXISTS users;
 
-CREATE TABLE users (
-  username TEXT PRIMARY KEY,
-  password TEXT NOT NULL,
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL, 
-  email TEXT NOT NULL UNIQUE,
-  photo_url TEXT,
-  is_admin BOOLEAN DEFAULT false 
+-- CREATE TABLE users (
+--   username TEXT PRIMARY KEY,
+--   password TEXT NOT NULL,
+--   first_name TEXT NOT NULL,
+--   last_name TEXT NOT NULL, 
+--   email TEXT NOT NULL UNIQUE,
+--   photo_url TEXT,
+--   is_admin BOOLEAN DEFAULT false 
+  
+-- );
+
+
+DROP TABLE IF EXISTS applications;
+
+CREATE TABLE applications (
+  username TEXT PRIMARY KEY REFERENCES users ON DELETE CASCADE,
+  job_id INTEGER REFERENCES jobs ON DELETE CASCADE,
+  state TEXT NOT NULL,
+  created_at timestamp without time zone NOT NULL
   
 );

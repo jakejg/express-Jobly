@@ -105,4 +105,23 @@ router.delete('/:id', checkAdminStatus, async (req, res, next) => {
     }
 });
 
+// route to apply to a job accepts 
+// {state: "applied", "interview", "offer"} in body
+// and job id in url
+
+router.post('/:id/apply', async (req, res, next) => {
+    try{
+        if (!req.user) throw new ExpressError("Unauthorized", 400);
+        const { state } = req.body
+        const job = await Job.get(req.params.id);
+        await job.apply(req.user.username, state);
+       
+        
+        return res.json({message: state});
+    }
+    catch(e){
+        next(e);
+    }
+});
+
 module.exports = router;

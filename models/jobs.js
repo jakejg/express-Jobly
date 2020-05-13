@@ -92,6 +92,23 @@ class Job {
     
     }
 
+    // apply to a job
+    async apply(username, state) {
+
+        if (state === "applied") {
+            const results = await db.query(`INSERT INTO applications
+            (username, job_id, state, created_at)
+            VALUES ($1, $2, $3, $4)`,
+            [username, this.id, state, new Date()]);
+        }
+        else {
+            const results = await db.query(`UPDATE applications SET
+            state=$2
+            WHERE username=$1`,
+            [username, state]);
+        }
+    }
+
 
     // Insert job objects in the database
 
