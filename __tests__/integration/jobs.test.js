@@ -99,7 +99,7 @@ describe("Job Routes Tests", ()=>{
     test('get a job by handle that does not exist', async() => {
         let res = await request(app).get('/jobs/-3');
         expect(res.status).toEqual(400);
-        expect(res.body.message).toEqual('No such job: undefined');
+        expect(res.body.message).toEqual('No such job: -3');
     });
 
     test('update a job', async() => {
