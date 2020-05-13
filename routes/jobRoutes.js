@@ -11,8 +11,9 @@ const { validateCreateJobJson, validateUpdateJobJson } = require('../middleware/
 // Route to get all jobs
 router.get('/', async (req, res, next) => {
     try{
-        let jobs;
+        if (!req.user) throw new ExpressError("Unauthorized", 400);
 
+        let jobs;
         if (Object.keys(req.query).length !== 0){
             
             jobs = await Job.filter(req.query);
@@ -31,6 +32,8 @@ router.get('/', async (req, res, next) => {
 // Route to get a job by id
 router.get('/:id', async (req, res, next) => {
     try{
+        if (!req.user) throw new ExpressError("Unauthorized", 400);
+
         const job = await Job.get(req.params.id);
         
         return res.json({job});
@@ -40,7 +43,12 @@ router.get('/:id', async (req, res, next) => {
     }
 });
 
-// Route to create a new job
+// Route to create a new job with this JSON
+// handle: 'tst2',
+// name: "testComp2",
+// num_employees: 50,
+// description: "testing",
+// logo_url: "http://test.com"
 
 router.post('/', validateCreateJobJson,  async (req, res, next) => {
     try{

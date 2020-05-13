@@ -69,7 +69,7 @@ class Job {
         const job = results.rows[0];
         
         if (job === undefined) {
-          throw new ExpressError(`No such job: ${job}`, 400);
+          throw new ExpressError(`No such job: ${id}`, 400);
         }
      
         const compResults = await db.query(
@@ -86,13 +86,10 @@ class Job {
     // delete a job 
 
     async delete() {
-        try{
-            await db.query(`DELETE FROM jobs WHERE id=$1`,
-            [this.id])
-        }
-        catch(e){
-            console.log(e)
-        }
+        
+        await db.query(`DELETE FROM jobs WHERE id=$1`,
+        [this.id])
+    
     }
 
 

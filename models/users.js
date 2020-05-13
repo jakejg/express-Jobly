@@ -36,11 +36,21 @@ class User {
         return new User(userObj);
     }
 
+    // authenticate a user with username and password
+    static async authenticate(username, password){
+       
+        const user = await this.get(username);
+
+        const auth = await bcrypt.compare(password, user.password)
+
+        return auth
+    }
+
     // retrieve a user by username
 
     static async get(username) {
         const results = await db.query(
-          `SELECT username, first_name, last_name, email, photo_url, is_admin
+          `SELECT username, password, first_name, last_name, email, photo_url, is_admin
             FROM users
             WHERE username = $1`,
           [username]

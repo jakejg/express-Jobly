@@ -6,6 +6,8 @@ const ExpressError = require("../helpers/expressError");
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
 const db = require('../db');
 const { validateCreateUserJson, validateUpdateUserJson } = require('../middleware/jsonValidation');
+const jwt = require('jsonwebtoken');
+const { SECRET_KEY } = require('../config');
 
 
 // Route to get all users
@@ -24,9 +26,10 @@ router.get('/', async (req, res, next) => {
 // Route to get a user by username
 router.get('/:username', async (req, res, next) => {
     try{
-        const username = await User.get(req.params.username);
+        const user = await User.get(req.params.username);
+        delete user.password
         
-        return res.json({username});
+        return res.json({user});
     }
     catch(e){
         next(e);
@@ -49,7 +52,12 @@ router.post('/', validateCreateUserJson, async (req, res, next) => {
         const user = await User.create(req.body);
     
         await user.save();
-        return res.status(201).json({user});
+        const payload = {
+            username: user.username,
+            is_admin: user.is_admin
+        }
+        const _token = jwt.sign(payload, SECRET_KEY)  
+        return res.json({_token})
     }
     catch(e){
         next(e);
@@ -98,4 +106,28 @@ router.delete('/:username', async (req, res, next) => {
     }
 });
 
+// Route to login a user
+router.post('/login', async (req, res, next) => {
+    try{
+        const { username, password } = req.body
+       
+        const auth = await User.authenticate(username, password)
+        if (auth) {
+            const user = await User.get(username)
+
+            const payload = {
+                username: user.username,
+                name: user.is_admin
+            }
+            const _token = jwt.sign(payload, SECRET_KEY)  
+            return res.json({_token})
+        }
+        else{
+            throw new ExpressError("Password/username does not match", 400)
+        }  
+    }
+    catch(e){
+        next(e)
+    }      
+});
 module.exports = router;

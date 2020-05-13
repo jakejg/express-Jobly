@@ -10,16 +10,21 @@ const app = express();
 const companyRoutes = require('./routes/companyRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const userRoutes = require('./routes/userRoutes');
+const { authorize } = require('./middleware/auth');
 
 app.use(express.json());
 
 // add logging system
 app.use(morgan("tiny"));
 
+// allow every route to check if correct JWT token was sent
+app.use(authorize);
+
 // routes for companies
 app.use('/companies', companyRoutes);
 app.use('/jobs', jobRoutes);
-app.use('/users',userRoutes);
+app.use('/users', userRoutes);
+
 
 /** 404 handler */
 

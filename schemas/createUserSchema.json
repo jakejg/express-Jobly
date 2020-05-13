@@ -20,8 +20,7 @@
         "password",
         "first_name",
         "last_name",
-        "email",
-        "photo_url"
+        "email"
     ],
     "additionalProperties": true,
     "properties": {

@@ -4,21 +4,22 @@ const router = new express.Router();
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
 const db = require('../db');
 const { validateCreateCompanyJson, validateUpdateCompanyJson } = require('../middleware/jsonValidation');;
-
+const ExpressError = require("../helpers/expressError");
 
 // Route to get all companies
 router.get('/', async (req, res, next) => {
     try{
-        let jobs;
+        if (!req.user) throw new ExpressError("Unauthorized", 400);
 
+        let companies;
         if (Object.keys(req.query).length !== 0){
-            jobs = await Job.filter(req.query);
+            companies = await Company.filter(req.query);
         }
         else{
-            jobs = await Job.getAll();
+            companies = await Company.getAll();
         }
       
-        return res.json({jobs});
+        return res.json({companies});
     }
     catch(e){
         next(e)
@@ -28,6 +29,8 @@ router.get('/', async (req, res, next) => {
 // Route to get a company by handle
 router.get('/:handle', async (req, res, next) => {
     try{
+        if (!req.user) throw new ExpressError("Unauthorized", 400);
+
         const company = await Company.get(req.params.handle);
         
         return res.json({company});
