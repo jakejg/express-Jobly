@@ -8,6 +8,7 @@ const db = require('../db');
 const { validateCreateUserJson, validateUpdateUserJson } = require('../middleware/jsonValidation');
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../config');
+const { checkUsername } = require('../middleware/auth')
 
 
 // Route to get all users
@@ -64,10 +65,11 @@ router.post('/', validateCreateUserJson, async (req, res, next) => {
     }
 });
 
-//Route to update a job, will just return the company if no data is passed in body
+//Route to update a user, will just return the company if no data is passed in body
 
-router.patch('/:username', validateUpdateUserJson, async (req, res, next) => {
+router.patch('/:username', validateUpdateUserJson, checkUsername, async (req, res, next) => {
     try{
+        // console.log(req.user)
         const user = await User.get(req.params.username);
  
         const items = {
@@ -93,7 +95,7 @@ router.patch('/:username', validateUpdateUserJson, async (req, res, next) => {
 
 // Route to delete a user
 
-router.delete('/:username', async (req, res, next) => {
+router.delete('/:username', checkUsername, async (req, res, next) => {
     try{
         const user = await User.get(req.params.username);
        
@@ -117,7 +119,7 @@ router.post('/login', async (req, res, next) => {
 
             const payload = {
                 username: user.username,
-                name: user.is_admin
+                is_admin: user.is_admin
             }
             const _token = jwt.sign(payload, SECRET_KEY)  
             return res.json({_token})
