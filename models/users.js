@@ -5,7 +5,7 @@ const { BCRYPT_WORK_FACTOR } = require('../config');
 const ExpressError = require("../helpers/expressError");
 
 class User {
-    constructor({username, password , first_name, last_name, email, photo_url, is_admin}) {
+    constructor({username, password , first_name, last_name, email, photo_url, is_admin, jobs}) {
         this.username = username;
         this.password = password;
         this.first_name = first_name;
@@ -13,6 +13,7 @@ class User {
         this.email = email;
         this.photo_url = photo_url;
         this.is_admin = is_admin;
+        this.jobs = jobs;
     }
 
     //get all users
@@ -61,13 +62,13 @@ class User {
           throw new ExpressError(`No such user: ${username}`, 400);
         }
      
-        // const jobResults = await db.query(
-        //     `SELECT handle, name, num_employees, description, logo_url
-        //       FROM companies 
-        //       WHERE handle = $1`,
-        //     [job.company_handle]
-        //   );
-        //   job.company_handle = compResults.rows[0];   
+        const jobResults = await db.query(
+            `SELECT j.id, j.title, j.salary, j.equity, j.company_handle, j.date_posted, a.state
+              FROM jobs AS j JOIN applications AS a ON j.id=a.job_id
+              WHERE username = $1`,
+            [username]
+          );
+          user.jobs=jobResults.rows   
         
         return new User(user);
     }
