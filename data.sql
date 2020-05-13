@@ -38,7 +38,8 @@
 DROP TABLE IF EXISTS applications;
 
 CREATE TABLE applications (
-  username TEXT PRIMARY KEY REFERENCES users ON DELETE CASCADE,
+  primary key (username, job_id),
+  username TEXT REFERENCES users ON DELETE CASCADE,
   job_id INTEGER REFERENCES jobs ON DELETE CASCADE,
   state TEXT NOT NULL,
   created_at timestamp without time zone NOT NULL

@@ -94,18 +94,26 @@ class Job {
 
     // apply to a job
     async apply(username, state) {
+        try{
+            const results = await db.query(`SELECT * FROM applications
+                WHERE username=$1 AND job_id=$2`,
+                [username, this.id])
 
-        if (state === "applied") {
-            const results = await db.query(`INSERT INTO applications
-            (username, job_id, state, created_at)
-            VALUES ($1, $2, $3, $4)`,
-            [username, this.id, state, new Date()]);
+            if (!results.rows[0]) {
+                const results = await db.query(`INSERT INTO applications
+                (username, job_id, state, created_at)
+                VALUES ($1, $2, $3, $4)`,
+                [username, this.id, state, new Date()]);
+            }
+            else {
+                const results = await db.query(`UPDATE applications SET
+                state=$2
+                WHERE username=$1`,
+                [username, state]);
+            }
         }
-        else {
-            const results = await db.query(`UPDATE applications SET
-            state=$2
-            WHERE username=$1`,
-            [username, state]);
+        catch(e){
+            console.log(e)
         }
     }
 
