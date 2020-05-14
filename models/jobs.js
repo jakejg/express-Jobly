@@ -3,12 +3,13 @@ const sqlForPartialUpdate = require('../helpers/partialUpdate');
 const ExpressError = require("../helpers/expressError");
 
 class Job {
-    constructor({id, title , salary, equity, company_handle}) {
+    constructor({id, title , salary, equity, company_handle, date_posted}) {
         this.id = id;
         this.title = title;
         this.salary = salary;
         this.equity = equity;
         this.company_handle = company_handle;
+        this.date_posted = date_posted;
     }
 
     //get all companies
@@ -53,7 +54,8 @@ class Job {
     //create and return a new job object
 
     static create(jobObj){
-    
+
+        jobObj.date_posted = new Date();
         return new Job(jobObj);
     }
 
@@ -61,24 +63,44 @@ class Job {
 
     static async get(id) {
         const results = await db.query(
-          `SELECT id, title, salary, equity, company_handle
-            FROM jobs
-            WHERE id = $1`,
-          [id]
-        );      
-        const job = results.rows[0];
-        
-        if (job === undefined) {
+            `SELECT j.id, j.title, j.salary, j.equity, j.company_handle,
+            c.handle, c.name, c.num_employees, c.description, c.logo_url 
+            FROM jobs as j JOIN companies AS c ON j.company_handle=c.handle WHERE id=$1`,
+            [id]
+          );    
+
+        if (results.rows[0] === undefined) {
           throw new ExpressError(`No such job: ${id}`, 400);
         }
+        const job = {
+            id: results.rows[0].id,
+            title: results.rows[0].title,
+            salary: results.rows[0].salary,
+            equity: results.rows[0].equity,
+            company_handle: {
+                handle: results.rows[0].handle,
+                name: results.rows[0].name,
+                num_employees: results.rows[0].num_employees,
+                description: results.rows[0].description,
+                logo_url: results.rows[0].logo_url,
+            }
+        } 
+
+        // const results = await db.query(
+        //   `SELECT id, title, salary, equity, company_handle
+        //     FROM jobs
+        //     WHERE id = $1`,
+        //   [id]
+        // );      
+        // const job = results.rows[0];
      
-        const compResults = await db.query(
-            `SELECT handle, name, num_employees, description, logo_url
-              FROM companies 
-              WHERE handle = $1`,
-            [job.company_handle]
-          );
-          job.company_handle = compResults.rows[0];   
+        // const compResults = await db.query(
+        //     `SELECT handle, name, num_employees, description, logo_url
+        //       FROM companies 
+        //       WHERE handle = $1`,
+        //     [job.company_handle]
+        //   );
+        //   job.company_handle = compResults.rows[0];   
         
         return new Job(job);
     }
@@ -145,7 +167,7 @@ class Job {
             (title, salary, equity, company_handle, date_posted)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING id, date_posted`,
-            [this.title, this.salary, this.equity, this.company_handle, new Date()]);
+            [this.title, this.salary, this.equity, this.company_handle, this.date_posted]);
 
             this.id = results.rows[0].id;
             this.date_posted = results.rows[0].date_posted;
