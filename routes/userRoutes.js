@@ -26,7 +26,6 @@ router.get('/', async (req, res, next) => {
 router.get('/:username', async (req, res, next) => {
     try{
         const user = await User.get(req.params.username);
-        delete user.password
         
         return res.json({user});
     }
@@ -70,9 +69,9 @@ router.patch('/:username', validateUpdateUserJson, checkUsername, async (req, re
        
         const user = await User.get(req.params.username);
 
-        const { password, first_name, last_name, email, photo_url, is_admin } = req.body
+        const {first_name, last_name, email, photo_url, is_admin } = req.body
 
-        await user.update(password, first_name, last_name, email, photo_url, is_admin)
+        await user.update(first_name, last_name, email, photo_url, is_admin)
         delete user.jobs
 
  

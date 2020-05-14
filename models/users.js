@@ -41,9 +41,9 @@ class User {
     // authenticate a user with username and password
     static async authenticate(username, password){
        
-        const user = await this.get(username);
-
-        const auth = await bcrypt.compare(password, user.password)
+        const dbPassword = await this.getPassword(username);
+     
+        const auth = await bcrypt.compare(password, dbPassword);
 
         return auth
     }
@@ -52,7 +52,7 @@ class User {
 
     static async get(username) {
         const results = await db.query(
-          `SELECT username, password, first_name, last_name, email, photo_url, is_admin
+          `SELECT username, first_name, last_name, email, photo_url, is_admin
             FROM users
             WHERE username = $1`,
           [username]
@@ -75,6 +75,19 @@ class User {
         return new User(user);
     }
 
+    //retrieve a user's password by username
+    static async getPassword(username) {
+        const results = await db.query(
+          `SELECT password
+            FROM users
+            WHERE username = $1`,
+          [username]
+        );
+        
+        return results.rows[0].password;
+    }    
+
+
     // delete a job 
 
     async delete() {
@@ -84,9 +97,8 @@ class User {
       
     }
 
-    async update(password, first_name, last_name, email, photo_url, is_admin) {
+    async update(first_name, last_name, email, photo_url, is_admin) {
         const items = {
-            password: password || this.password,
             first_name: first_name || this.first_name,
             last_name: last_name || this.last_name,
             email: email || this.email,
@@ -98,7 +110,7 @@ class User {
         
         const results = await db.query(queryObject.query, queryObject.values)
 
-        this.password = results.rows[0].password;
+        
         this.first_name = results.rows[0].first_name;
         this.last_name = results.rows[0].last_name;
         this.email = results.rows[0].email;
