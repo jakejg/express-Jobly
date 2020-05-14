@@ -11,25 +11,17 @@ describe("Company Routes Tests", ()=>{
     beforeEach(async () => {
         await db.query("DELETE FROM companies");
 
-        const comp1 = Company.create({
-            handle: 'tst',
-            name: "testComp",
-            num_employees: 10,
-            description: "testing",
-            logo_url: "http://test.com",
-            _token: adminToken
-        });
-        const comp2 = Company.create({
-            handle: 'tst2',
-            name: "testComp2",
-            num_employees: 50,
-            description: "testing",
-            logo_url: "http://test.com",
-            _token: adminToken
-        });
+        await db.query(`INSERT INTO companies 
+            (handle, name, num_employees, description, logo_url)
+            VALUES ($1, $2, $3, $4, $5)`,
+            ['tst', "testComp", 10, "testing", "http://test.com"]
+            );
+        await db.query(`INSERT INTO companies 
+            (handle, name, num_employees, description, logo_url)
+            VALUES ($1, $2, $3, $4, $5)`,
+            ['tst2', "testComp2", 50, "testing", "http://test.com"]
+            );
 
-        await comp1.save()
-        await comp2.save()
     });
 
     test('get all companies', async() => {

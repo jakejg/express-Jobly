@@ -17,43 +17,33 @@ describe("Job Routes Tests", ()=>{
         await db.query("DELETE FROM jobs");
         await db.query("DELETE FROM companies");
 
-        const comp1 = Company.create({
-            handle: 'tst',
-            name: "testComp",
-            num_employees: 10,
-            description: "testing",
-            logo_url: "http://test.com",
-            _token: adminToken
-        });
-        const comp2 = Company.create({
-            handle: 'tst2',
-            name: "testComp2",
-            num_employees: 50,
-            description: "testing",
-            logo_url: "http://test.com",
-            _token: adminToken
-        });
+        await db.query(`INSERT INTO companies 
+            (handle, name, num_employees, description, logo_url)
+            VALUES ($1, $2, $3, $4, $5)`,
+            ['tst', "testComp", 10, "testing", "http://test.com"]
+            );
+        await db.query(`INSERT INTO companies 
+            (handle, name, num_employees, description, logo_url)
+            VALUES ($1, $2, $3, $4, $5)`,
+            ['tst2', "testComp2", 50, "testing", "http://test.com"]
+            );
 
-        await comp1.save()
-        await comp2.save()
+        const results1 = await db.query(`INSERT INTO jobs
+            (title, salary, equity, company_handle, date_posted)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id, date_posted`,
+            ["Job Tester", "100", ".2", "tst", new Date()]
+            );
+        
+        const results2 = await db.query(`INSERT INTO jobs
+            (title, salary, equity, company_handle, date_posted)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id, date_posted`,
+            ["Test Manager", "2000", ".5", "tst2", new Date()]
+            );
+        job1 = results1.rows[0];
+        job2 = results1.rows[0];
 
-        job1 = Job.create({
-            title: "Job Tester",
-            salary: "100",
-            equity: ".2",
-            company_handle: "tst",
-            _token: adminToken
-        });
-        job2 = Job.create({
-            title: "Test Manager",
-            salary: "2000",
-            equity: ".5",
-            company_handle: "tst2",
-            _token: adminToken
-        });
-
-        await job1.save()
-        await job2.save()
     });
 
     test('get all jobs ', async() => {

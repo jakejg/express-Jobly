@@ -16,25 +16,23 @@ describe("User Routes Tests", ()=>{
     beforeEach(async () => {
         await db.query("DELETE FROM users");
 
-        user1 = await User.create({
-            username: "tester",
-            password: "pwd",
-            first_name: "please",
-            last_name: "pass",
-            email: "t@test.com",
-            is_admin: true
-        });
-        user2 = await User.create({
-            username: "tester2",
-            password: "pwd",
-            first_name: "please!",
-            last_name: "pass!",
-            email: "t@test2.com",
-            is_admin: true
-        });
-  
-        await user1.save();
-        await user2.save();
+        const results1 = await db.query(`INSERT INTO users
+            (username, password, first_name, last_name, email, photo_url, is_admin)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *`,
+            ["tester", "pwd", "please", "pass", "t@test.com", "http://photo.com", true]
+            );
+        const results2 = await db.query(`INSERT INTO users
+            (username, password, first_name, last_name, email, photo_url, is_admin)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *`,
+            
+            ["tester2", "pwd", "just", "work", "t@test2.com", "http://photo.com", true]
+            );
+
+        user1 = results1.rows[0];
+        user2 = results2.rows[0];
+    
     });
        
     test('get all users ', async() => {
@@ -53,7 +51,6 @@ describe("User Routes Tests", ()=>{
             is_admin: true
         })
         expect(res.status).toEqual(200);
-        console.log(res.body)
         expect(jwt.decode(res.body._token).username).toEqual("tester3");
     })
 
@@ -69,7 +66,7 @@ describe("User Routes Tests", ()=>{
     })
 
     test('get a user by username', async() => {
-        console.log(user1.username)
+   
         let res = await request(app).get(`/users/${user1.username}`);
         expect(res.status).toEqual(200);
         expect(res.body.user.username).toEqual('tester');
@@ -83,7 +80,7 @@ describe("User Routes Tests", ()=>{
     });
 
     test('update a user', async() => {
-        console.log(user1.username)
+     
         let res = await request(app).patch(`/users/${user1.username}`).send({
             password: "new",
             first_name: "updatedFirst",

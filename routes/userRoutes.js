@@ -6,7 +6,7 @@ const ExpressError = require("../helpers/expressError");
 const { validateCreateUserJson, validateUpdateUserJson } = require('../middleware/jsonValidation');
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../config');
-const { checkUsername } = require('../middleware/auth')
+const { checkUsername } = require('../middleware/auth');
 
 
 // Route to get all users

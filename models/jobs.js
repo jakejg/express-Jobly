@@ -120,7 +120,7 @@ class Job {
     async update(title, salary, equity, company_handle) {
         const items = {
             title: title || this.title,
-            salary: salary || thidate_posted,
+            salary: salary || this.salary,
             equity: equity || this.equity,
             company_handle: company_handle || this.company_handle,    
         }
